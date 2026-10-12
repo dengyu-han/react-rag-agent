@@ -58,7 +58,23 @@ Python · FastAPI · ChromaDB · OpenAI Function-Calling · httpx / BeautifulSou
 
 ## 运行方式
 
-> 完整的分步部署说明（虚拟环境、依赖安装、环境变量、知识库入库、验证与排错）见 **[DEPLOY.md](./DEPLOY.md)**。
+> **推荐：通过 Docker 镜像部署**，无需安装 Python 与依赖。完整的分步部署说明（拉取镜像、环境变量、知识库入库、验证与排错）见 **[DEPLOY.md](./DEPLOY.md)**。
+
+1. 拉取镜像：
+
+   ```bash
+   docker pull dengyu-han/react-rag-agent:latest
+   ```
+
+2. 配置 `.env` 并启动（详见 DEPLOY.md 步骤 2 / 4）。
+
+3. 按 `docker-compose.yml` 一键启动工具服务与主程序：
+
+   ```bash
+   docker compose up -d
+   ```
+
+> 以下为**开发 / 源码运行**方式（可选）：
 
 1. 配置 `.env`：
 

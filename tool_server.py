@@ -136,4 +136,6 @@ def web_fetch(req: FetchRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("tool_server:app", host="127.0.0.1", port=8000)
+    host = os.getenv("TOOL_SERVER_HOST", "127.0.0.1")
+    port = int(os.getenv("TOOL_SERVER_PORT", "8000"))
+    uvicorn.run("tool_server:app", host=host, port=port)

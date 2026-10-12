@@ -1,0 +1,32 @@
+# 两个服务复用同一个镜像，通过 command 区分启动哪个进程
+services:
+  # 服务 1：工具服务（联网搜索 / 网页抓取）
+  tool_server:
+    build: .
+    image: rag-agent:latest
+    command: ["python", "tool_server.py"]
+    env_file:
+      - .env
+    environment:
+      # 容器内监听 0.0.0.0，才能被 agent 容器访问
+      - TOOL_SERVER_HOST=0.0.0.0
+    ports:
+      - "8000:8000"
+
+  # 服务 2：主程序（交互式对话）
+  agent:
+    build: .
+    image: rag-agent:latest
+    command: ["python", "agent.py"]
+    env_file:
+      - .env
+    environment:
+      # 跨容器调用，改用服务名 tool_server，而非 127.0.0.1
+      - TOOL_SERVER_URL=http://tool_server:8000
+    stdin_open: true
+    tty: true
+    volumes:
+      # 复用本机的向量库数据，容器重启不丢
+      - ./chroma_db:/app/chroma_db
+    depends_on:
+      - tool_server

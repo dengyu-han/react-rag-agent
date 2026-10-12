@@ -210,10 +210,12 @@ def image_generate(prompt:str,  save_path:str,image_path:str =None):
     return {"success": True, "path": save_path}
 
 
+TOOL_SERVER_URL = os.getenv("TOOL_SERVER_URL", "http://127.0.0.1:8000")
+
 def web_search(query: str, max_results:int=5):
     logger.info(f"调用联网搜索工具 query={query}")
     with httpx.Client(timeout=20) as client:
-        resp = client.post("http://127.0.0.1:8000/tools/web_search", json={
+        resp = client.post(f"{TOOL_SERVER_URL}/tools/web_search", json={
             "query": query,
             "max_results": max_results
         })
@@ -222,7 +224,7 @@ def web_search(query: str, max_results:int=5):
 def web_fetch(url: str):
     logger.info(f"调用网页抓取工具 url={url}")
     with httpx.Client(timeout=20) as client:
-        resp = client.post("http://127.0.0.1:8000/tools/web_fetch", json={
+        resp = client.post(f"{TOOL_SERVER_URL}/tools/web_fetch", json={
             "url": url
         })
     return resp.text

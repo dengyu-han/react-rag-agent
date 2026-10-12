@@ -1,0 +1,30 @@
+# 密钥（绝不进镜像）
+.env
+
+# Git
+.git
+.gitignore
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*.pyo
+
+# 虚拟环境
+venv/
+.venv/
+
+# 向量库（运行时用 volume 挂载，不打进镜像）
+chroma_db/
+langchain_chroma_db/
+
+# 日志
+*.log
+
+# 无关目录
+examples/
+legacy/
+
+# 编辑器
+.vscode/
+.idea/

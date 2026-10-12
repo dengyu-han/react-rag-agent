@@ -10,28 +10,29 @@ from langchain_classic.agents import AgentExecutor, create_openai_tools_agent
 from openai import OpenAI
 import httpx
 from langchain_openai import ChatOpenAI
+from langchain_classic.memory import ConversationSummaryBufferMemory
 
 load_dotenv()
 
 @tool
 def get_current_time():
-    """获取当前系统时间，用户询问日期、时间的时候调用"""
+    """èŽ·å–å½“å‰ç³»ç»Ÿæ—¶é—´ï¼Œç”¨æˆ·è¯¢é—®æ—¥æœŸã€æ—¶é—´çš„æ—¶å€™è°ƒç”?"""
     now = datetime.now()
     return now.strftime("%Y-%m-%d %H:%M:%S")
 
 @tool
 def generate_picture(prompt:str, save_path:str, image_list=None):
     """
-    根据提示词生成图片，可以传入参考图。
-    :param prompt: 图片生成提示词
-    :param save_path: 图片保存本地路径
-    :param image_list: 参考图片base64数组，为空则纯文生图
+    æ ¹æ®æç¤ºè¯ç”Ÿæˆå›¾ç‰‡ï¼Œå¯ä»¥ä¼ å…¥å‚è€ƒå›¾ã€?
+    :param prompt: å›¾ç‰‡ç”Ÿæˆæç¤ºè¯?
+    :param save_path: å›¾ç‰‡ä¿å­˜æœ¬åœ°è·¯å¾„
+    :param image_list: å‚è€ƒå›¾ç‰‡base64æ•°ç»„ï¼Œä¸ºç©ºåˆ™çº¯æ–‡ç”Ÿå›¾
     """
     if image_list is None:
         image_list = []
     extra_body = {}
     if image_list:
-        # 火山方舟通过 extra_body.image 传参考图（URL / base64 数组）
+        # ç«å±±æ–¹èˆŸé€šè¿‡ extra_body.image ä¼ å‚è€ƒå›¾ï¼ˆURL / base64 æ•°ç»„ï¼?
         extra_body["image"] = image_list
     
     image_client = OpenAI(
@@ -61,12 +62,12 @@ if __name__ == "__main__":
     rag_tool = create_retriever_tool(
         retriever,
         name="document search",
-        description="当用户问题需要查询本地文档、知识库、文件资料时调用，返回相关文档片段。用于查找与问题相关的文件信息，每次返回最相关的3条文档片段。如果需要验证资料内容或找不到相关信息，不要编造，直接返回未找到。"
+        description="å½“ç”¨æˆ·é—®é¢˜éœ€è¦æŸ¥è¯¢æœ¬åœ°æ–‡æ¡£ã€çŸ¥è¯†åº“ã€æ–‡ä»¶èµ„æ–™æ—¶è°ƒç”¨ï¼Œè¿”å›žç›¸å…³æ–‡æ¡£ç‰‡æ®µã€‚ç”¨äºŽæŸ¥æ‰¾ä¸Žé—®é¢˜ç›¸å…³çš„æ–‡ä»¶ä¿¡æ¯ï¼Œæ¯æ¬¡è¿”å›žæœ€ç›¸å…³çš?3æ¡æ–‡æ¡£ç‰‡æ®µã€‚å¦‚æžœéœ€è¦éªŒè¯èµ„æ–™å†…å®¹æˆ–æ‰¾ä¸åˆ°ç›¸å…³ä¿¡æ¯ï¼Œä¸è¦ç¼–é€ ï¼Œç›´æŽ¥è¿”å›žæœªæ‰¾åˆ°ã€?"
     )
     tools= [rag_tool, get_current_time, generate_picture]
 
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "你是一个智能助手，可以根据需求调用工具。回答问题优先使用本地文档检索，没有信息再使用其他工具，不要编造内容。\n规则：调用工具并获得结果后，必须立即基于结果给出最终回答，禁止重复调用同一个工具或无关工具；如果工具结果已足够回答问题，不要再次调用工具。"),
+        ("system", "ä½ æ˜¯ä¸€ä¸ªæ™ºèƒ½åŠ©æ‰‹ï¼Œå¯ä»¥æ ¹æ®éœ€æ±‚è°ƒç”¨å·¥å…·ã€‚å›žç­”é—®é¢˜ä¼˜å…ˆä½¿ç”¨æœ¬åœ°æ–‡æ¡£æ£€ç´¢ï¼Œæ²¡æœ‰ä¿¡æ¯å†ä½¿ç”¨å…¶ä»–å·¥å…·ï¼Œä¸è¦ç¼–é€ å†…å®¹ã€‚\nè§„åˆ™ï¼šè°ƒç”¨å·¥å…·å¹¶èŽ·å¾—ç»“æžœåŽï¼Œå¿…é¡»ç«‹å³åŸºäºŽç»“æžœç»™å‡ºæœ€ç»ˆå›žç­”ï¼Œç¦æ­¢é‡å¤è°ƒç”¨åŒä¸€ä¸ªå·¥å…·æˆ–æ— å…³å·¥å…·ï¼›å¦‚æžœå·¥å…·ç»“æžœå·²è¶³å¤Ÿå›žç­”é—®é¢˜ï¼Œä¸è¦å†æ¬¡è°ƒç”¨å·¥å…·ã€?"),
         ("human", "{input}"),
         MessagesPlaceholder(variable_name="agent_scratchpad"),
     ])
@@ -77,11 +78,20 @@ if __name__ == "__main__":
         model="ark-code-latest",
         temperature= 0
     )
+
+    memory  = ConversationSummaryBufferMemory(
+        llm = llm,
+        max_token_limit = 2000,
+        memory_key="chat_history",
+        return_messages=True
+    )
+
     agent = create_openai_tools_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(
         agent = agent,
         tools = tools,
         max_iterations = 5,
+        memory = memory,
         handle_parsing_errors =True,
         verbose = True
     )
